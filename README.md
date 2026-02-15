@@ -15,11 +15,7 @@ Open `index.html` directly in browser.
 
 ## GitHub -> Cloudflare Pages auto-deploy
 
-This repo includes a GitHub Actions workflow that deploys to Cloudflare Pages on every push to `main`.
-
-Required GitHub repository secrets:
-- `CLOUDFLARE_API_TOKEN`: Cloudflare API token with `Pages:Edit`.
-- `CLOUDFLARE_ACCOUNT_ID`: Cloudflare account id, e.g. `43a1dcc493f6486971c7c6ddff944c12`.
+Use Cloudflare Pages built-in GitHub integration (recommended). It does not require sharing any API token with this repo.
 
 ## Custom domain (apex)
 
