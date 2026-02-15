@@ -1,0 +1,163 @@
+:root {
+  --bg: #f4f1ea;
+  --ink: #121111;
+  --ink-soft: #433f3d;
+  --accent: #b3391d;
+  --accent-2: #e4b83f;
+  --panel: #fff9ef;
+  --line: #231f1d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 10% 10%, rgba(179, 57, 29, 0.15), transparent 50%),
+    radial-gradient(circle at 90% 20%, rgba(228, 184, 63, 0.16), transparent 45%),
+    var(--bg);
+  line-height: 1.55;
+}
+
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.brand {
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.nav-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-links a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.hero {
+  padding: 1.5rem 1rem 3rem;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.hero-content {
+  margin-top: 3.5rem;
+  border: 2px solid var(--line);
+  background: var(--panel);
+  padding: 2rem;
+  box-shadow: 9px 9px 0 var(--line);
+  animation: slideUp 0.65s ease both;
+}
+
+.kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+h1,
+h2 {
+  font-family: "Noto Serif SC", serif;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: clamp(2rem, 7vw, 3.6rem);
+  margin: 0;
+}
+
+.subtitle {
+  max-width: 720px;
+  font-size: 1.05rem;
+  color: var(--ink-soft);
+}
+
+.cta-row {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  border: 2px solid var(--line);
+  padding: 0.65rem 1rem;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.btn.primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn.ghost {
+  color: var(--ink);
+  background: #fff;
+}
+
+main {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 1rem 3rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.panel {
+  border: 2px solid var(--line);
+  background: var(--panel);
+  padding: 1.25rem;
+  box-shadow: 5px 5px 0 var(--line);
+  animation: fadeIn 0.9s ease both;
+}
+
+.split {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+li + li {
+  margin-top: 0.4rem;
+}
+
+footer {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 1rem 2rem;
+  color: var(--ink-soft);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
