@@ -5,7 +5,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT_DIR"
 
 # Simple, idempotent SEO maintenance for a single-page static site.
-# Only commits when it actually changes tracked files.
+# Only commits when it actually changes SEO-relevant files.
 
 PUBLIC_DIR="$ROOT_DIR/public"
 REPORT_DIR="$ROOT_DIR/reports"
@@ -13,6 +13,13 @@ mkdir -p "$REPORT_DIR"
 
 ts="$(date -u +%Y%m%d-%H%M%S)-utc"
 report="$REPORT_DIR/seo-${ts}.md"
+
+lock_dir="/tmp/science-legal-seo.lock"
+if ! mkdir "$lock_dir" 2>/dev/null; then
+  echo "Another SEO maintenance run is in progress; exiting." >> "$report"
+  exit 0
+fi
+trap 'rmdir "$lock_dir" 2>/dev/null || true' EXIT
 
 echo "# SEO maintenance report" > "$report"
 echo >> "$report"
@@ -46,7 +53,8 @@ EOF
   echo "- created: public/sitemap.xml" >> "$report"
 fi
 
-git add -A
+# Stage only the SEO-relevant files; do not stage reports.
+git add public/index.html public/robots.txt public/sitemap.xml 2>/dev/null || true
 
 if git diff --cached --quiet; then
   echo >> "$report"
@@ -62,10 +70,7 @@ echo '```' >> "$report"
 git diff --cached --stat >> "$report"
 echo '```' >> "$report"
 
-git add "$report"
-
-git commit -m "chore(seo): hourly maintenance (${ts})"
+git commit -m "chore(seo): maintenance (${ts})"
 
 # Push may fail in restricted environments; caller can rerun with appropriate network perms.
 git push
-
