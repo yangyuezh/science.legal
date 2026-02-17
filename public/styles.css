@@ -142,6 +142,21 @@ footer {
   color: var(--ink-soft);
 }
 
+.lang-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.7rem;
+}
+
+.lang-grid a {
+  border: 2px solid var(--line);
+  padding: 0.65rem 0.8rem;
+  text-decoration: none;
+  color: var(--ink);
+  background: #fff;
+  font-weight: 700;
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;
