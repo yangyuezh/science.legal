@@ -29,7 +29,13 @@
         const error = params.get("error");
 
         if (error) {
-          statusEl.innerHTML = "<h2>Authentication Error</h2><p>" + error + "</p>";
+          let msg = error;
+          if (error === "orcid_not_configured") {
+            msg = "ORCID is not configured yet. Missing ORCID_CLIENT_ID / ORCID_CLIENT_SECRET / SESSION_SECRET in Worker variables.";
+          } else if (error === "orcid_callback_failed") {
+            msg = "ORCID callback failed. Check ORCID redirect URI and Worker variables.";
+          }
+          statusEl.innerHTML = "<h2>Authentication Error</h2><p>" + msg + "</p>";
           return;
         }
 

@@ -8,11 +8,19 @@ export default {
     const url = new URL(request.url);
 
     if (url.pathname === "/auth/orcid/login") {
-      return handleLogin(request, env, url);
+      try {
+        return await handleLogin(request, env, url);
+      } catch (err) {
+        return redirectWithError("/orcid.html?error=orcid_not_configured");
+      }
     }
 
     if (url.pathname === "/auth/orcid/callback") {
-      return handleCallback(request, env, url);
+      try {
+        return await handleCallback(request, env, url);
+      } catch (err) {
+        return redirectWithError("/orcid.html?error=orcid_callback_failed");
+      }
     }
 
     if (url.pathname === "/auth/orcid/logout") {
@@ -20,7 +28,11 @@ export default {
     }
 
     if (url.pathname === "/api/me") {
-      return handleMe(request, env);
+      try {
+        return await handleMe(request, env);
+      } catch (err) {
+        return json({ authenticated: false, error: "orcid_not_configured" }, 200);
+      }
     }
 
     return env.ASSETS.fetch(request);
