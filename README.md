@@ -30,7 +30,10 @@ Additional sign-in entry endpoints:
 - `/auth/wos/logout`
 - `/api/wos/me`
 - `/wos.html`
-- `/auth/altmetric/login` (redirect to Altmetric portal)
+- `/auth/altmetric/login` (Altmetric portal entry)
+- `/auth/altmetric/logout`
+- `/api/altmetric/me`
+- `/altmetric.html`
 
 Set these Cloudflare Worker environment variables:
 - `ORCID_CLIENT_ID`
@@ -50,6 +53,10 @@ Optional Web of Science OAuth variables (for on-site verified WOS status):
 - `WOS_REDIRECT_URI` (optional; defaults to `https://<your-domain>/auth/wos/callback`)
 - `WOS_SCOPE` (optional; default `openid profile email`)
 - `WOS_PORTAL_URL` (optional; default `https://www.webofscience.com`)
+
+Optional Altmetric variables:
+- `ALTMETRIC_PORTAL_URL` (optional; default `https://www.altmetric.com/explorer/login`)
+- `ALTMETRIC_API_KEY` (optional; enables API-connected status indication)
 
 ## Custom domain (apex)
 

@@ -3,6 +3,7 @@ const STATE_COOKIE = "orcid_state";
 const WOS_SESSION_COOKIE = "wos_session";
 const WOS_STATE_COOKIE = "wos_state";
 const WOS_PORTAL_COOKIE = "wos_portal";
+const ALTMETRIC_PORTAL_COOKIE = "altmetric_portal";
 const SESSION_MAX_AGE = 60 * 60 * 24 * 30;
 const STATE_MAX_AGE = 60 * 10;
 
@@ -70,7 +71,15 @@ export default {
     }
 
     if (url.pathname === "/auth/altmetric/login") {
-      return redirect("https://www.altmetric.com/explorer/login");
+      return handleAltmetricLogin(env);
+    }
+
+    if (url.pathname === "/auth/altmetric/logout") {
+      return handleAltmetricLogout(url);
+    }
+
+    if (url.pathname === "/api/altmetric/me") {
+      return handleAltmetricMe(request, env);
     }
 
     if (url.pathname === "/api/me") {
@@ -335,6 +344,41 @@ async function handleWosMe(request, env) {
   }
 
   return json({ authenticated: true, oauth_configured: cfg.oauthConfigured, profile }, 200);
+}
+
+function handleAltmetricLogin(env) {
+  const portalUrl = env.ALTMETRIC_PORTAL_URL || "https://www.altmetric.com/explorer/login";
+  const headers = new Headers();
+  headers.set("Location", portalUrl);
+  headers.append(
+    "Set-Cookie",
+    cookieHeader(ALTMETRIC_PORTAL_COOKIE, randomToken(12), STATE_MAX_AGE)
+  );
+  return new Response(null, { status: 302, headers });
+}
+
+function handleAltmetricLogout(url) {
+  const next = url.searchParams.get("next") || "/altmetric.html";
+  const headers = new Headers();
+  headers.set("Location", next);
+  headers.append("Set-Cookie", clearCookieHeader(ALTMETRIC_PORTAL_COOKIE));
+  return new Response(null, { status: 302, headers });
+}
+
+function handleAltmetricMe(request, env) {
+  const cookies = parseCookies(request.headers.get("Cookie"));
+  const portalOpened = Boolean(cookies[ALTMETRIC_PORTAL_COOKIE]);
+  const apiConfigured = Boolean(env.ALTMETRIC_API_KEY || env.ALTMETRIC_EXPLORER_API_KEY);
+
+  return json(
+    {
+      authenticated: false,
+      mode: "portal",
+      portal_opened: portalOpened,
+      api_configured: apiConfigured
+    },
+    200
+  );
 }
 
 function getConfig(env, url) {
