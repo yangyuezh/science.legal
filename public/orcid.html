@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ORCID Verification | science.legal</title>
+    <meta name="description" content="ORCID authentication status for the Science Externalities Declaration." />
+    <link rel="canonical" href="https://science.legal/orcid.html" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="hero">
+      <section class="hero-content">
+        <p class="kicker">science.legal</p>
+        <h1>ORCID Verification</h1>
+        <div id="status" class="panel">Loading authentication status...</div>
+        <p>
+          <a class="btn primary" href="/auth/orcid/login">Sign in with ORCID</a>
+          <a class="btn ghost" href="/auth/orcid/logout?next=/orcid.html">Sign out</a>
+          <a class="btn ghost" href="/">Back to Declaration</a>
+        </p>
+      </section>
+    </main>
+
+    <script>
+      (async function () {
+        const statusEl = document.getElementById("status");
+        const params = new URLSearchParams(window.location.search);
+        const error = params.get("error");
+
+        if (error) {
+          statusEl.innerHTML = "<h2>Authentication Error</h2><p>" + error + "</p>";
+          return;
+        }
+
+        try {
+          const res = await fetch("/api/me", { credentials: "include" });
+          const data = await res.json();
+
+          if (!data.authenticated) {
+            statusEl.innerHTML = "<h2>Not verified</h2><p>You are not signed in with ORCID yet.</p>";
+            return;
+          }
+
+          const profile = data.profile || {};
+          const id = profile.orcid || "";
+          const name = profile.name || "";
+          const link = id ? "https://orcid.org/" + encodeURIComponent(id) : "#";
+
+          statusEl.innerHTML =
+            "<h2>Verified ORCID iD</h2>" +
+            (name ? "<p><strong>Name:</strong> " + name + "</p>" : "") +
+            (id
+              ? "<p><strong>ORCID:</strong> <a href=\"" + link + "\" target=\"_blank\" rel=\"noopener noreferrer\">" + id + "</a></p>"
+              : "") +
+            "<p>This session is authenticated through ORCID OAuth.</p>";
+        } catch (e) {
+          statusEl.innerHTML = "<h2>Error</h2><p>Unable to load authentication status.</p>";
+        }
+      })();
+    </script>
+  </body>
+</html>

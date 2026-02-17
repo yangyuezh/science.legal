@@ -1,8 +1,9 @@
 {
   "name": "sciencelegal",
+  "main": "src/worker.js",
   "compatibility_date": "2026-02-15",
   "assets": {
-    "directory": "./public"
+    "directory": "./public",
+    "binding": "ASSETS"
   }
 }
-

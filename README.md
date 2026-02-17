@@ -15,6 +15,25 @@ Open `public/index.html` directly in browser.
 
 Use Cloudflare's Git integration to run `npx wrangler deploy` on commits.
 
+## ORCID login integration
+
+This Worker includes ORCID OAuth endpoints:
+- `/auth/orcid/login`
+- `/auth/orcid/callback`
+- `/auth/orcid/logout`
+- `/api/me`
+- `/orcid.html`
+
+Set these Cloudflare Worker environment variables:
+- `ORCID_CLIENT_ID`
+- `ORCID_CLIENT_SECRET`
+- `SESSION_SECRET` (long random string used for cookie signing)
+- `ORCID_REDIRECT_URI` (optional; defaults to `https://<your-domain>/auth/orcid/callback`)
+- `ORCID_BASE_URL` (optional; default `https://orcid.org`; use `https://sandbox.orcid.org` for sandbox)
+
+In ORCID application settings, register callback URL:
+- `https://science.legal/auth/orcid/callback`
+
 ## Custom domain (apex)
 
 Attach `science.legal` in the Cloudflare dashboard after the Worker deploys successfully.
