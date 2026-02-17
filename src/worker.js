@@ -38,6 +38,14 @@ export default {
       return handleLogout(url);
     }
 
+    if (url.pathname === "/auth/wos/login") {
+      return redirect("https://www.webofscience.com");
+    }
+
+    if (url.pathname === "/auth/altmetric/login") {
+      return redirect("https://www.altmetric.com/explorer/login");
+    }
+
     if (url.pathname === "/api/me") {
       try {
         return await handleMe(request, env);
@@ -192,6 +200,10 @@ function json(data, status) {
 }
 
 function redirectWithError(location) {
+  return redirect(location);
+}
+
+function redirect(location) {
   return new Response(null, {
     status: 302,
     headers: { Location: location }

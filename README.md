@@ -24,6 +24,10 @@ This Worker includes ORCID OAuth endpoints:
 - `/api/me`
 - `/orcid.html`
 
+Additional sign-in entry endpoints:
+- `/auth/wos/login` (redirect to Web of Science portal)
+- `/auth/altmetric/login` (redirect to Altmetric portal)
+
 Set these Cloudflare Worker environment variables:
 - `ORCID_CLIENT_ID`
 - `ORCID_CLIENT_SECRET`
