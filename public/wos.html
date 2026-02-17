@@ -18,7 +18,6 @@
           <a class="btn primary" href="/auth/wos/login">Sign in with Web of Science</a>
           <a class="btn ghost" href="/auth/wos/logout?next=/wos.html">Sign out</a>
           <a class="btn ghost" href="/">Back to Declaration</a>
-          <a class="btn ghost" href="/altmetric.html">Altmetric status</a>
         </p>
       </section>
     </main>
@@ -48,13 +47,14 @@
             if (data.portal_opened) {
               statusEl.innerHTML =
                 "<h2>Portal opened</h2><p>Web of Science portal login was opened. " +
-                "On-site verified identity will appear here after OAuth provider credentials are configured.</p>";
+                "On-site verified identity will appear here only if Clarivate OAuth credentials are configured for your account.</p>";
               return;
             }
 
             statusEl.innerHTML =
               "<h2>Not verified</h2><p>No on-site Web of Science verified session yet.</p>" +
-              "<p>You can still use the button to open the official Web of Science portal.</p>";
+              "<p>You can still use the button to open the official Web of Science portal.</p>" +
+              "<p>Note: many Web of Science integrations are API-key based rather than end-user OAuth.</p>";
             return;
           }
 

@@ -30,10 +30,6 @@ Additional sign-in entry endpoints:
 - `/auth/wos/logout`
 - `/api/wos/me`
 - `/wos.html`
-- `/auth/altmetric/login` (Altmetric portal entry)
-- `/auth/altmetric/logout`
-- `/api/altmetric/me`
-- `/altmetric.html`
 
 Set these Cloudflare Worker environment variables:
 - `ORCID_CLIENT_ID`
@@ -54,9 +50,8 @@ Optional Web of Science OAuth variables (for on-site verified WOS status):
 - `WOS_SCOPE` (optional; default `openid profile email`)
 - `WOS_PORTAL_URL` (optional; default `https://www.webofscience.com`)
 
-Optional Altmetric variables:
-- `ALTMETRIC_PORTAL_URL` (optional; default `https://www.altmetric.com/explorer/login`)
-- `ALTMETRIC_API_KEY` (optional; enables API-connected status indication)
+Notes:
+- Web of Science APIs are commonly API-key based; OAuth support depends on the specific Clarivate product/contract.
 
 ## Custom domain (apex)
 
