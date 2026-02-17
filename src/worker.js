@@ -1,5 +1,8 @@
 const SESSION_COOKIE = "orcid_session";
 const STATE_COOKIE = "orcid_state";
+const WOS_SESSION_COOKIE = "wos_session";
+const WOS_STATE_COOKIE = "wos_state";
+const WOS_PORTAL_COOKIE = "wos_portal";
 const SESSION_MAX_AGE = 60 * 60 * 24 * 30;
 const STATE_MAX_AGE = 60 * 10;
 
@@ -39,7 +42,31 @@ export default {
     }
 
     if (url.pathname === "/auth/wos/login") {
-      return redirect("https://www.webofscience.com");
+      try {
+        return await handleWosLogin(request, env, url);
+      } catch (err) {
+        return redirectWithError("/wos.html?error=wos_login_failed");
+      }
+    }
+
+    if (url.pathname === "/auth/wos/callback") {
+      try {
+        return await handleWosCallback(request, env, url);
+      } catch (err) {
+        return redirectWithError("/wos.html?error=wos_callback_failed");
+      }
+    }
+
+    if (url.pathname === "/auth/wos/logout") {
+      return handleWosLogout(url);
+    }
+
+    if (url.pathname === "/api/wos/me") {
+      try {
+        return await handleWosMe(request, env);
+      } catch (err) {
+        return json({ authenticated: false, error: "wos_not_configured" }, 200);
+      }
     }
 
     if (url.pathname === "/auth/altmetric/login") {
@@ -168,6 +195,148 @@ async function handleMe(request, env) {
   return json({ authenticated: true, profile: session }, 200);
 }
 
+async function handleWosLogin(request, env, url) {
+  const cfg = getWosConfig(env, url);
+  const headers = new Headers();
+
+  if (!cfg.oauthConfigured) {
+    headers.set("Location", cfg.portalUrl);
+    headers.append("Set-Cookie", cookieHeader(WOS_PORTAL_COOKIE, randomToken(12), STATE_MAX_AGE));
+    return new Response(null, { status: 302, headers });
+  }
+
+  const state = randomToken(24);
+  const signedState = await signValue(state, cfg.sessionSecret);
+  const auth = new URL(cfg.authorizeUrl);
+  auth.searchParams.set("client_id", cfg.clientId);
+  auth.searchParams.set("response_type", "code");
+  auth.searchParams.set("redirect_uri", cfg.redirectUri);
+  auth.searchParams.set("state", state);
+  if (cfg.scope) auth.searchParams.set("scope", cfg.scope);
+
+  headers.set("Location", auth.toString());
+  headers.append("Set-Cookie", cookieHeader(WOS_STATE_COOKIE, signedState, STATE_MAX_AGE));
+  return new Response(null, { status: 302, headers });
+}
+
+async function handleWosCallback(request, env, url) {
+  const cfg = getWosConfig(env, url);
+  if (!cfg.oauthConfigured) {
+    return redirectWithError("/wos.html?error=wos_not_configured");
+  }
+
+  const code = url.searchParams.get("code");
+  const state = url.searchParams.get("state");
+  const cookies = parseCookies(request.headers.get("Cookie"));
+  const signedState = cookies[WOS_STATE_COOKIE];
+
+  if (!code || !state || !signedState) {
+    return redirectWithError("/wos.html?error=missing_oauth_params");
+  }
+
+  const storedState = await verifySignedValue(signedState, cfg.sessionSecret);
+  if (!storedState || storedState !== state) {
+    return redirectWithError("/wos.html?error=invalid_state");
+  }
+
+  let tokenRes = await fetch(cfg.tokenUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Accept": "application/json"
+    },
+    body: new URLSearchParams({
+      client_id: cfg.clientId,
+      client_secret: cfg.clientSecret,
+      grant_type: "authorization_code",
+      code,
+      redirect_uri: cfg.redirectUri
+    })
+  });
+
+  if (!tokenRes.ok) {
+    // Some OAuth providers require Basic auth for token exchange.
+    tokenRes = await fetch(cfg.tokenUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept": "application/json",
+        "Authorization": `Basic ${btoa(`${cfg.clientId}:${cfg.clientSecret}`)}`
+      },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: cfg.redirectUri
+      })
+    });
+  }
+
+  if (!tokenRes.ok) {
+    return redirectWithError("/wos.html?error=token_exchange_failed");
+  }
+
+  const token = await tokenRes.json();
+  const jwtPayload = token.id_token ? parseJwtPayload(token.id_token) : null;
+  const profile = {
+    provider: "webofscience",
+    subject: token.sub || jwtPayload?.sub || "",
+    name: token.name || jwtPayload?.name || "",
+    email: token.email || jwtPayload?.email || "",
+    scope: token.scope || "",
+    issued_at: new Date().toISOString()
+  };
+
+  const signedSession = await signValue(JSON.stringify(profile), cfg.sessionSecret);
+  const headers = new Headers();
+  headers.set("Location", "/wos.html");
+  headers.append("Set-Cookie", cookieHeader(WOS_SESSION_COOKIE, signedSession, SESSION_MAX_AGE));
+  headers.append("Set-Cookie", clearCookieHeader(WOS_STATE_COOKIE));
+  headers.append("Set-Cookie", clearCookieHeader(WOS_PORTAL_COOKIE));
+  return new Response(null, { status: 302, headers });
+}
+
+function handleWosLogout(url) {
+  const next = url.searchParams.get("next") || "/wos.html";
+  const headers = new Headers();
+  headers.set("Location", next);
+  headers.append("Set-Cookie", clearCookieHeader(WOS_SESSION_COOKIE));
+  headers.append("Set-Cookie", clearCookieHeader(WOS_STATE_COOKIE));
+  headers.append("Set-Cookie", clearCookieHeader(WOS_PORTAL_COOKIE));
+  return new Response(null, { status: 302, headers });
+}
+
+async function handleWosMe(request, env) {
+  const cfg = getWosConfig(env, new URL(request.url));
+  const cookies = parseCookies(request.headers.get("Cookie"));
+  const signed = cookies[WOS_SESSION_COOKIE];
+  const portalOpened = Boolean(cookies[WOS_PORTAL_COOKIE]);
+
+  if (!signed) {
+    return json(
+      {
+        authenticated: false,
+        oauth_configured: cfg.oauthConfigured,
+        portal_opened: portalOpened
+      },
+      200
+    );
+  }
+
+  const raw = await verifySignedValue(signed, cfg.sessionSecret);
+  if (!raw) {
+    return json({ authenticated: false, oauth_configured: cfg.oauthConfigured }, 200);
+  }
+
+  let profile;
+  try {
+    profile = JSON.parse(raw);
+  } catch {
+    return json({ authenticated: false, oauth_configured: cfg.oauthConfigured }, 200);
+  }
+
+  return json({ authenticated: true, oauth_configured: cfg.oauthConfigured, profile }, 200);
+}
+
 function getConfig(env, url) {
   const clientId = env.ORCID_CLIENT_ID;
   const clientSecret = env.ORCID_CLIENT_SECRET;
@@ -186,6 +355,31 @@ function getConfig(env, url) {
     sessionSecret,
     orcidBase,
     redirectUri
+  };
+}
+
+function getWosConfig(env, url) {
+  const sessionSecret = env.SESSION_SECRET;
+  if (!sessionSecret) throw new Error("Missing SESSION_SECRET");
+
+  const clientId = env.WOS_CLIENT_ID || "";
+  const clientSecret = env.WOS_CLIENT_SECRET || "";
+  const authorizeUrl = env.WOS_AUTHORIZE_URL || "";
+  const tokenUrl = env.WOS_TOKEN_URL || "";
+  const redirectUri = env.WOS_REDIRECT_URI || `${url.origin}/auth/wos/callback`;
+  const scope = env.WOS_SCOPE || "openid profile email";
+  const portalUrl = env.WOS_PORTAL_URL || "https://www.webofscience.com";
+
+  return {
+    sessionSecret,
+    clientId,
+    clientSecret,
+    authorizeUrl,
+    tokenUrl,
+    redirectUri,
+    scope,
+    portalUrl,
+    oauthConfigured: Boolean(clientId && clientSecret && authorizeUrl && tokenUrl)
   };
 }
 
@@ -292,6 +486,16 @@ function base64UrlToText(payload) {
   const bytes = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
   return new TextDecoder().decode(bytes);
+}
+
+function parseJwtPayload(jwt) {
+  const parts = String(jwt || "").split(".");
+  if (parts.length < 2) return null;
+  try {
+    return JSON.parse(base64UrlToText(parts[1]));
+  } catch {
+    return null;
+  }
 }
 
 function constantTimeEqual(a, b) {

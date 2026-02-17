@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web of Science Access | science.legal</title>
+    <meta name="description" content="Web of Science access and authentication status for science.legal." />
+    <link rel="canonical" href="https://science.legal/wos.html" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="hero">
+      <section class="hero-content">
+        <p class="kicker">science.legal</p>
+        <h1>Web of Science</h1>
+        <div id="status" class="panel">Loading authentication status...</div>
+        <p>
+          <a class="btn primary" href="/auth/wos/login">Sign in with Web of Science</a>
+          <a class="btn ghost" href="/auth/wos/logout?next=/wos.html">Sign out</a>
+          <a class="btn ghost" href="/">Back to Declaration</a>
+        </p>
+      </section>
+    </main>
+
+    <script>
+      (async function () {
+        const statusEl = document.getElementById("status");
+        const params = new URLSearchParams(window.location.search);
+        const error = params.get("error");
+
+        if (error) {
+          let msg = error;
+          if (error === "wos_not_configured") {
+            msg = "Web of Science OAuth is not configured yet. Portal sign-in is available.";
+          } else if (error === "token_exchange_failed") {
+            msg = "Token exchange failed. Check WOS OAuth endpoints/client credentials.";
+          }
+          statusEl.innerHTML = "<h2>Authentication Error</h2><p>" + msg + "</p>";
+          return;
+        }
+
+        try {
+          const res = await fetch("/api/wos/me", { credentials: "include" });
+          const data = await res.json();
+
+          if (!data.authenticated) {
+            if (data.portal_opened) {
+              statusEl.innerHTML =
+                "<h2>Portal opened</h2><p>Web of Science portal login was opened. " +
+                "On-site verified identity will appear here after OAuth provider credentials are configured.</p>";
+              return;
+            }
+
+            statusEl.innerHTML =
+              "<h2>Not verified</h2><p>No on-site Web of Science verified session yet.</p>" +
+              "<p>You can still use the button to open the official Web of Science portal.</p>";
+            return;
+          }
+
+          const p = data.profile || {};
+          const sub = p.subject || "";
+          const name = p.name || "";
+          const email = p.email || "";
+
+          statusEl.innerHTML =
+            "<h2>Web of Science session detected</h2>" +
+            (name ? "<p><strong>Name:</strong> " + name + "</p>" : "") +
+            (email ? "<p><strong>Email:</strong> " + email + "</p>" : "") +
+            (sub ? "<p><strong>Subject:</strong> " + sub + "</p>" : "") +
+            "<p>Session authenticated through configured Web of Science OAuth provider.</p>";
+        } catch {
+          statusEl.innerHTML = "<h2>Error</h2><p>Unable to load Web of Science status.</p>";
+        }
+      })();
+    </script>
+  </body>
+</html>

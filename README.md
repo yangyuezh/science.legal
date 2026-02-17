@@ -25,7 +25,11 @@ This Worker includes ORCID OAuth endpoints:
 - `/orcid.html`
 
 Additional sign-in entry endpoints:
-- `/auth/wos/login` (redirect to Web of Science portal)
+- `/auth/wos/login` (Web of Science entry; OAuth if configured, else portal redirect)
+- `/auth/wos/callback`
+- `/auth/wos/logout`
+- `/api/wos/me`
+- `/wos.html`
 - `/auth/altmetric/login` (redirect to Altmetric portal)
 
 Set these Cloudflare Worker environment variables:
@@ -37,6 +41,15 @@ Set these Cloudflare Worker environment variables:
 
 In ORCID application settings, register callback URL:
 - `https://science.legal/auth/orcid/callback`
+
+Optional Web of Science OAuth variables (for on-site verified WOS status):
+- `WOS_CLIENT_ID`
+- `WOS_CLIENT_SECRET`
+- `WOS_AUTHORIZE_URL`
+- `WOS_TOKEN_URL`
+- `WOS_REDIRECT_URI` (optional; defaults to `https://<your-domain>/auth/wos/callback`)
+- `WOS_SCOPE` (optional; default `openid profile email`)
+- `WOS_PORTAL_URL` (optional; default `https://www.webofscience.com`)
 
 ## Custom domain (apex)
 
