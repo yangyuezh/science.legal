@@ -7,6 +7,17 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    // Keep auth flow on one canonical origin to avoid state/cookie mismatches.
+    if (url.protocol !== "https:" || url.hostname === "www.science.legal") {
+      const redirect = new URL(url.toString());
+      redirect.protocol = "https:";
+      if (redirect.hostname === "www.science.legal") redirect.hostname = "science.legal";
+      return new Response(null, {
+        status: 301,
+        headers: { Location: redirect.toString() }
+      });
+    }
+
     if (url.pathname === "/auth/orcid/login") {
       try {
         return await handleLogin(request, env, url);
