@@ -38,10 +38,30 @@
     <header class="hero">
       <nav class="top-nav">
         <a class="brand" href="/">Science Legal Protocol</a>
-        <div class="nav-links">
-          <a href="#declaration">Declaration</a>
-          <a href="#principles">Principles</a>
-          <a href="#sign">Sign</a>
+        <div class="nav-right">
+          <div class="nav-links">
+            <a href="#declaration">Declaration</a>
+            <a href="#principles">Principles</a>
+            <a href="#watch">Watch</a>
+            <a href="#sign">Sign</a>
+          </div>
+          <label class="lang-switch" for="lang-switch-en">
+            <span class="sr-only">Language versions</span>
+            <select
+              id="lang-switch-en"
+              aria-label="Language versions"
+              onchange="if (this.value) window.location.href=this.value;"
+            >
+              <option value="/" selected>English</option>
+              <option value="/manifesto-zh.html">中文</option>
+              <option value="/manifesto-es.html">Español</option>
+              <option value="/manifesto-fr.html">Français</option>
+              <option value="/manifesto-de.html">Deutsch</option>
+              <option value="/manifesto-ja.html">日本語</option>
+              <option value="/manifesto-ar.html">العربية</option>
+              <option value="/manifesto-ru.html">Русский</option>
+            </select>
+          </label>
         </div>
       </nav>
 
@@ -90,6 +110,41 @@
         </p>
       </section>
 
+      <section id="watch" class="panel">
+        <h2>Science and Scopus Externalities Watch</h2>
+        <p>
+          We continuously search and report publications on scientific and technological externalities, with emphasis on AI externalities, governance, accountability, and remedy design.
+        </p>
+        <div class="watch-grid">
+          <article class="watch-card">
+            <h3>Science (AAAS)</h3>
+            <p>Track peer-reviewed and policy-facing discussions in <em>Science</em>.</p>
+            <p>
+              <a
+                class="btn ghost"
+                href="https://www.science.org/action/doSearch?AllField=%22scientific+externalities%22+OR+%22AI+externalities%22+OR+%22technological+externalities%22"
+                target="_blank"
+                rel="noopener noreferrer"
+              >Search Science</a>
+            </p>
+            <p class="query-note">Suggested query: "scientific externalities" OR "AI externalities" OR "technological externalities"</p>
+          </article>
+          <article class="watch-card">
+            <h3>Scopus</h3>
+            <p>Monitor large-scale cross-disciplinary literature and citation trends.</p>
+            <p>
+              <a
+                class="btn ghost"
+                href="https://www.scopus.com/search/form.uri?display=basic"
+                target="_blank"
+                rel="noopener noreferrer"
+              >Open Scopus Search</a>
+            </p>
+            <p class="query-note">Suggested query: TITLE-ABS-KEY("scientific externalities" OR "AI externalities" OR "technology externalities")</p>
+          </article>
+        </div>
+      </section>
+
       <section id="sign" class="panel">
         <h2>Signatory Statement</h2>
         <p>
@@ -109,19 +164,6 @@
         </p>
       </section>
 
-      <section id="languages" class="panel">
-        <h2>Language Versions</h2>
-        <div class="lang-grid">
-          <a href="/">English (Primary)</a>
-          <a href="/manifesto-zh.html">中文（次选）</a>
-          <a href="/manifesto-es.html">Español</a>
-          <a href="/manifesto-fr.html">Français</a>
-          <a href="/manifesto-de.html">Deutsch</a>
-          <a href="/manifesto-ja.html">日本語</a>
-          <a href="/manifesto-ar.html">العربية</a>
-          <a href="/manifesto-ru.html">Русский</a>
-        </div>
-      </section>
     </main>
 
     <footer>

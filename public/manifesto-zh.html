@@ -17,10 +17,30 @@
     <header class="hero">
       <nav class="top-nav">
         <a class="brand" href="/">Science Legal Protocol</a>
-        <div class="nav-links">
-          <a href="#declaration">宣言</a>
-          <a href="#principles">原则</a>
-          <a href="#sign">签署</a>
+        <div class="nav-right">
+          <div class="nav-links">
+            <a href="#declaration">宣言</a>
+            <a href="#principles">原则</a>
+            <a href="#watch">追踪</a>
+            <a href="#sign">签署</a>
+          </div>
+          <label class="lang-switch" for="lang-switch-zh">
+            <span class="sr-only">语言版本</span>
+            <select
+              id="lang-switch-zh"
+              aria-label="语言版本"
+              onchange="if (this.value) window.location.href=this.value;"
+            >
+              <option value="/">English</option>
+              <option value="/manifesto-zh.html" selected>中文</option>
+              <option value="/manifesto-es.html">Español</option>
+              <option value="/manifesto-fr.html">Français</option>
+              <option value="/manifesto-de.html">Deutsch</option>
+              <option value="/manifesto-ja.html">日本語</option>
+              <option value="/manifesto-ar.html">العربية</option>
+              <option value="/manifesto-ru.html">Русский</option>
+            </select>
+          </label>
         </div>
       </nav>
 
@@ -65,6 +85,41 @@
         </p>
       </section>
 
+      <section id="watch" class="panel">
+        <h2>Science 与 Scopus 外部性研究追踪</h2>
+        <p>
+          我们持续检索并报道“科学技术外部性”相关文献，重点关注 AI 外部性、治理机制、责任结构与补救路径。
+        </p>
+        <div class="watch-grid">
+          <article class="watch-card">
+            <h3>Science (AAAS)</h3>
+            <p>追踪 <em>Science</em> 上关于科研外部性与 AI 风险治理的研究与评论。</p>
+            <p>
+              <a
+                class="btn ghost"
+                href="https://www.science.org/action/doSearch?AllField=%22scientific+externalities%22+OR+%22AI+externalities%22+OR+%22technological+externalities%22"
+                target="_blank"
+                rel="noopener noreferrer"
+              >检索 Science</a>
+            </p>
+            <p class="query-note">建议检索词："scientific externalities" OR "AI externalities" OR "technological externalities"</p>
+          </article>
+          <article class="watch-card">
+            <h3>Scopus</h3>
+            <p>覆盖跨学科文献与引文趋势，用于持续跟踪外部性讨论演化。</p>
+            <p>
+              <a
+                class="btn ghost"
+                href="https://www.scopus.com/search/form.uri?display=basic"
+                target="_blank"
+                rel="noopener noreferrer"
+              >打开 Scopus 检索</a>
+            </p>
+            <p class="query-note">建议检索式：TITLE-ABS-KEY("scientific externalities" OR "AI externalities" OR "technology externalities")</p>
+          </article>
+        </div>
+      </section>
+
       <section id="sign" class="panel">
         <h2>签署声明</h2>
         <p>
@@ -75,19 +130,6 @@
         </p>
       </section>
 
-      <section id="languages" class="panel">
-        <h2>语言版本</h2>
-        <div class="lang-grid">
-          <a href="/">English (Primary)</a>
-          <a href="/manifesto-zh.html">中文（当前）</a>
-          <a href="/manifesto-es.html">Español</a>
-          <a href="/manifesto-fr.html">Français</a>
-          <a href="/manifesto-de.html">Deutsch</a>
-          <a href="/manifesto-ja.html">日本語</a>
-          <a href="/manifesto-ar.html">العربية</a>
-          <a href="/manifesto-ru.html">Русский</a>
-        </div>
-      </section>
     </main>
 
     <footer>
